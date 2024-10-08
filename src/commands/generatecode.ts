@@ -8,7 +8,7 @@ export const generateCode = () => async (ctx: Context) => {
   debug('Triggered "generatecode" text command');
 
   const userId = ctx.message?.from.id;
-  const userName = ctx.message?.from.username || ctx.message?.from.first_name;
+  const userName = ctx.message?.from.first_name || "X";
 
   const randomCode = Math.random().toString(36).substring(2, 12);
 
@@ -20,13 +20,19 @@ export const generateCode = () => async (ctx: Context) => {
       if (!user) {
         user = new User({ id: ctx.message?.from.id, code: randomCode });
         await user.save();
-        await ctx.reply(
-          `Hello, ${userName}\nYour registration code is: ${randomCode}\nLogin within our app`
+        await ctx.replyWithMarkdownV2(
+          `Hello, ${userName}😊 \nYour registration code is: \`${randomCode}\` \nLogin within our [app](https://t.me/datahunter0/70)`,
+          {
+            parse_mode: "MarkdownV2",
+          }
         );
       } else {
         const oldCode = user.code;
-        await ctx.reply(
-          `Hello, ${userName}!\nYour registration code is: ${oldCode}\nLogin within our app`
+        await ctx.replyWithMarkdownV2(
+          `Hello, ${userName}😊 \nYour registration code is: \`${oldCode}\` \nLogin within our [app](https://t.me/datahunter0/70)`,
+          {
+            parse_mode: "Markdown",
+          }
         );
       }
     } catch (error) {
