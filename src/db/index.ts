@@ -29,4 +29,23 @@ const userSchema = new Schema({
   },
 });
 
+const RecentSearchSchema = new Schema({
+  id: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  code: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  key: [
+    {
+      type: String,
+    },
+  ],
+});
+
 export const User = model("User", userSchema);
+export const RecentSearch = model("RecentSearch", RecentSearchSchema);
