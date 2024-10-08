@@ -1,5 +1,4 @@
 import { Context } from "telegraf";
-import { replyToMessage } from "../lib/replyToMessage";
 import createDebug from "debug";
 import { User, UserDB } from "../db";
 
@@ -21,28 +20,18 @@ export const generateCode = () => async (ctx: Context) => {
       if (!user) {
         user = new User({ id: ctx.message?.from.id, code: randomCode });
         await user.save();
-        await replyToMessage(
-          ctx,
-          userId,
-          `Hello, ${userName}\nYour registration code is: \`${randomCode}\`\nLogin within our app`,
-          { parse_mode: "MarkdownV2" }
+        await ctx.reply(
+          `Hello, ${userName}\nYour registration code is: ${randomCode}\nLogin within our app`
         );
       } else {
         const oldCode = user.code;
-        await replyToMessage(
-          ctx,
-          userId,
-          `Hello, ${userName}!\nYour registration code is: \`${oldCode}\`\nLogin within our app`,
-          { parse_mode: "MarkdownV2" }
+        await ctx.reply(
+          `Hello, ${userName}!\nYour registration code is: ${oldCode}\nLogin within our app`
         );
       }
     } catch (error) {
       debug("Error generating code:", error);
-      await replyToMessage(
-        ctx,
-        userId,
-        "An error occurred while generating the code."
-      );
+      await ctx.reply("An error occurred while generating the code.");
     }
   }
 };
