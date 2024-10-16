@@ -3,6 +3,7 @@ import createDebug from "debug";
 import { User, UserDB, RecentSearch } from "../db";
 import { ForceReply } from "telegraf/typings/core/types/typegram";
 import { bot } from "..";
+import { MAX_MESSAGE_LENGTH, splitMessage } from "../lib/messages";
 
 const debug = createDebug("bot:userdetails_command");
 const ADMIN_05 = process.env.ADMIN_05 as string;
@@ -48,17 +49,24 @@ export const userDetails = () => async (ctx: Context) => {
       const recentSearch =
         (await RecentSearch.findOne({ id: userX })) ||
         (await RecentSearch.findOne({ code: userX }));
-      let urls;
-      if (recentSearch) {
-        urls = recentSearch.key.join("\n");
-      }
+      let urls = recentSearch
+        ? recentSearch.key.join("\n")
+        : "No recent searches";
 
-      await ctx.reply(`User Details:
-Id: ${user.id}
-Code: ${user.code}
-Points: ${user.points}
-Recent Search:\n ${urls}
-`);
+      const userDetailsMessage = `User Details:
+Id: \`${user.id}\`
+Code: \`${user.code}\`
+Points: \`${user.points}\`
+Recent Search:\n${urls}`;
+
+      if (userDetailsMessage.length <= MAX_MESSAGE_LENGTH) {
+        await ctx.reply(userDetailsMessage, { parse_mode: "Markdown" });
+      } else {
+        const messageParts = splitMessage(userDetailsMessage);
+        for (const part of messageParts) {
+          await ctx.reply(part, { parse_mode: "Markdown" });
+        }
+      }
     });
   } catch (error) {
     debug("Error generating code:", error);
